@@ -1,0 +1,58 @@
+const express=require("express")
+const app=express();
+const noteModel=require("./models/notes.model")
+
+app.use(express.json())
+
+// create a note
+
+app.post("/api/notes",async(req,res)=>{
+    const {title,description}=req.body;
+
+    const note=await noteModel.create({title,description})
+
+    res.status(201).json({
+        message:"note created successfully",
+        note:note
+
+        })
+
+})
+
+
+app.get("/api/notes",async(req,res)=>{
+    const note=await noteModel.find();
+
+    res.status(200).json({
+        message:"notes fetech successfully",
+        note:note
+    })
+})
+
+
+//delete-> delete a note by id with the help of params
+app.delete("/api/notes/:id",async(req,res)=>{
+    const id=req.params.id;
+
+    await noteModel.findByIdAndDelete(id);
+    
+    res.status(200).json({
+        message:"note deleted successfully"
+    })
+}
+)
+
+//update description.
+//patch
+
+app.patch("/api/notes/:id",async(req,res)=>{
+    const id=req.params.id;
+    const{description}=req.body;
+    await noteModel.findByIdAndUpdate(id,{ description });
+
+    res.status(200).json({
+        message:"note updated successfully"
+    })
+})
+
+module.exports=app;
