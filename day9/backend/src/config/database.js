@@ -2,10 +2,12 @@ const mongoose=require("mongoose")
 
 function connectToDB(){
     mongoose.connect(process.env.MONGO_URI)
-    .then(()=>{
+    .then(
+        ()=>{
         console.log('conect to DB')
     })
-    .catch((err)=>{
+    .catch(
+        (err)=>{
         console.error("error occur ro connect db ")
     })
 }

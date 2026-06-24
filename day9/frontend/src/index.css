@@ -1,14 +1,198 @@
-.app{
-  display: flex;
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
 }
+
+body{
+    min-height:100vh;
+    background:linear-gradient(
+        -45deg,
+        #0f172a,
+        #1e293b,
+        #4f46e5,
+        #7c3aed
+    );
+    background-size:400% 400%;
+    animation:bgAnimation 12s ease infinite;
+}
+
+@keyframes bgAnimation{
+    0%{
+        background-position:0% 50%;
+    }
+    50%{
+        background-position:100% 50%;
+    }
+    100%{
+        background-position:0% 50%;
+    }
+}
+
+.app{
+    width:100%;
+    min-height:100vh;
+    padding:40px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:40px;
+}
+
+/* FORM */
+
+.form-container{
+    width:100%;
+    max-width:700px;
+}
+
+.form-container form{
+    backdrop-filter:blur(15px);
+    background:rgba(255,255,255,0.08);
+    border:1px solid rgba(255,255,255,0.15);
+    border-radius:25px;
+    padding:25px;
+    display:flex;
+    gap:15px;
+    flex-wrap:wrap;
+    box-shadow:
+    0 8px 32px rgba(0,0,0,0.2);
+}
+
+.form-container input{
+    flex:1;
+    min-width:200px;
+    padding:15px;
+    border:none;
+    outline:none;
+    border-radius:15px;
+    background:rgba(255,255,255,0.1);
+    color:white;
+    font-size:15px;
+}
+
+.form-container input::placeholder{
+    color:#d1d5db;
+}
+
+.form-container button{
+    padding:15px 25px;
+    border:none;
+    border-radius:15px;
+    cursor:pointer;
+    font-weight:600;
+    color:white;
+    background:linear-gradient(
+        135deg,
+        #06b6d4,
+        #8b5cf6
+    );
+    transition:.4s;
+}
+
+.form-container button:hover{
+    transform:translateY(-3px);
+    box-shadow:
+    0 0 15px #06b6d4,
+    0 0 30px #8b5cf6;
+}
+
+/* NOTES */
+
+.NoteContainer{
+    width:100%;
+    display:grid;
+    grid-template-columns:
+    repeat(auto-fit,minmax(280px,1fr));
+    gap:25px;
+}
+
 .note{
-  border: 1px solid black;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 200px;
-  height: 200px;
-  margin: 10px;
+    position:relative;
+    overflow:hidden;
+    padding:25px;
+    border-radius:25px;
+    backdrop-filter:blur(15px);
+    background:rgba(255,255,255,0.08);
+    border:1px solid rgba(255,255,255,0.15);
+    transition:.4s;
+    color:white;
+}
+
+.note::before{
+    content:'';
+    position:absolute;
+    width:150px;
+    height:150px;
+    background:linear-gradient(
+        #06b6d4,
+        #8b5cf6
+    );
+    border-radius:50%;
+    top:-70px;
+    right:-70px;
+    opacity:.3;
+    transition:.5s;
+}
+
+.note:hover{
+    transform:translateY(-10px) scale(1.03);
+    box-shadow:
+    0 10px 30px rgba(0,0,0,0.3),
+    0 0 20px rgba(139,92,246,0.3);
+}
+
+.note:hover::before{
+    transform:scale(1.4);
+}
+
+.note h2{
+    margin-bottom:15px;
+    font-size:24px;
+    font-weight:600;
+}
+
+.note p{
+    color:#e5e7eb;
+    line-height:1.7;
+    margin-bottom:20px;
+}
+
+.note button{
+    padding:10px 20px;
+    border:none;
+    border-radius:12px;
+    background:linear-gradient(
+        135deg,
+        #ef4444,
+        #f97316
+    );
+    color:white;
+    cursor:pointer;
+    font-weight:600;
+    transition:.3s;
+}
+
+.note button:hover{
+    transform:scale(1.08);
+    box-shadow:
+    0 0 15px #ef4444;
+}
+
+/* SCROLLBAR */
+
+::-webkit-scrollbar{
+    width:8px;
+}
+
+::-webkit-scrollbar-thumb{
+    background:#8b5cf6;
+    border-radius:10px;
+}
+
+::-webkit-scrollbar-track{
+    background:#111827;
 }
