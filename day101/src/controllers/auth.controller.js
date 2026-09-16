@@ -1,6 +1,7 @@
 const userModel = require("../models/user.model");
 const crypto =require("crypto");
-const jwt=require('jsonwebtoken')
+const jwt=require('jsonwebtoken');
+const bcrypt = require("bcryptjs");
    
    async function registerController(req,res){
     const {email,username,password,bio,profileImage}=req.body;
@@ -37,8 +38,9 @@ const jwt=require('jsonwebtoken')
    }
 
    //^ hashing one passward
-   const hash=crypto.createHash('sha256').update(password).digest('hex')
+//    const hash=crypto.createHash('sha256').update(password).digest('hex')
 
+     const hash=await bcrypt.hash(password,10);
 
    //^ Create user in MongoDB
    const user=await userModel.create({
@@ -99,8 +101,8 @@ const jwt=require('jsonwebtoken')
         })
     }
 
-    const hash=crypto.createHash('sha256').update(password).digest('hex');
-    const ispassword=hash==user.password
+    
+    const ispassword= await bcrypt.compare(password, user.password)
 
     if(!ispassword){
         return res.status(401).json({
