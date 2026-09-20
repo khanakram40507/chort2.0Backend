@@ -1,75 +1,45 @@
 const userModel = require("../models/user.model");
 const crypto =require("crypto");
-const jwt=require('jsonwebtoken');
-const bcrypt = require("bcryptjs");
-   
-   async function registerController(req,res){
+const jwt=require('jsonwebtoken'); 
+const bcrypt = require("bcryptjs"); //here we install npm i bcrypt
+
+//* Register controller
+
+async function registerController(req,res){
     const {email,username,password,bio,profileImage}=req.body;
-/*
-    //& check email id is already exist or not
-    const isUserExistByEmail=await userModel.findOne({email});
-    if(isUserExistByEmail){
-        return res.status(409).json({
-            message:"user already exist with same email"
-        })
-    }
 
-    const isUserExistByUsername=await userModel.findOne({username});
-    if(isUserExistByUsername){
-        return res.status(409).json({
-            message:"user already exist with same username"
-        })
-    }
- */
-
-
-    //^user exist or not
-   const isUserAlreadyExist=await userModel.findOne({
-    $or:[
-        {username},
-        {email}
-    ]
-   })
-
-   if(isUserAlreadyExist){
-           return res.status(409).json({
+    const isUserExist=await userModel.findOne({
+        $or:[
+            {username},
+            {email}
+        ]
+    })
+    if(isUserExist){
+        return res.status(400).json({
             message:"user already exist"
         })
-   }
-
-   //^ hashing one passward
-//    const hash=crypto.createHash('sha256').update(password).digest('hex')
-
-     const hash=await bcrypt.hash(password,10);
-
-   //^ Create user in MongoDB
-   const user=await userModel.create({
-    username,
-    email,
-    bio,
-    profileImage,
-    password:hash
-   })
-
-   //^Create JWT
-   const token=jwt.sign(
-    {
-        id:user._id
-    },
-    process.env.JWT_SECRET,
-    {
-        expiresIn :"1d"
     }
+
+    const hashPassword=await bcrypt.hash(password,10)
+
+    const user=await userModel.create({
+        email,
+        username,
+        password:hashPassword,
+        bio,
+        profileImage
+    })
+
+    const token=jwt.sign(
+        {id:user._id},
+        process.env.JWT_SECRET,
+        {expiresIn:"1d"}
     )
 
+    const cookie=res.cookie("token",token)
 
-    //^ Put JWT into cookie
-    res.cookie("token",token)
-
-
-    //^Send response
     res.status(201).json({
-        message:"User register successfully",
+        message:"user register successfully",
         user:{
             email:user.email,
             username:user.username,
@@ -77,7 +47,6 @@ const bcrypt = require("bcryptjs");
             profileImage:user.profileImage
         }
     })
-   
 
 }
 

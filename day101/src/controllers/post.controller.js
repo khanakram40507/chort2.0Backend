@@ -54,6 +54,64 @@ async function createpostController(req,res){
     
 }
 
+
+async function getPostController(req,res){
+    const token=req.cookies.token;
+    let decoded;
+    try{
+        decoded=jwt.verify(token,process.env.JWT_SECRET);
+    }catch(err){
+        return res.status(401).json({
+            message:"unauthorized"
+        })
+    }
+
+    const userId=decoded.id;
+
+    const posts=await postModel.find({user:userId});
+
+    res.status(200).json({
+        message:"posts fetched successfully",
+        posts
+    })
+}
+
+async function getPostDetailsController(req,res){
+    const token=req.cookies.token;
+    let decoded;
+    try{
+        decoded=jwt.verify(token,process.env.JWT_SECRET);
+    }catch(err){
+        return res.status(401).json({
+            message:"unauthorized"
+        })
+    }
+
+    const userId=decoded.id;
+    const postId=req.params.id;
+
+    const post=await postModel.findOne({_id:postId, user:userId}); //this will check if the post with the given id belongs to the user or not ans hold the post deatails in the post variable
+
+    if(!post){
+        return res.status(404).json({
+            message:"post not found"
+        })
+    }
+    const isAuthorized=post.user.toString()===userId;
+    if(!isAuthorized){
+        return res.status(403).json({
+            message:"you are not authorized to view this post"
+        })
+    }
+
+    res.status(200).json({
+        message:"post details fetched successfully",
+        post
+    })
+}
+
 module.exports={
-    createpostController
+    createpostController,
+    getPostController,
+    getPostDetailsController
 }
