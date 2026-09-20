@@ -7,29 +7,7 @@ const imagekit=new ImageKite({
     privateKey:process.env.IMAGEKIT_PRIVATE_KEY,
 })
 
-async function createpostController(req,res){
-    console.log(req.body,req.file);
-
-    const token=req.cookies.token;
-    if(!token){
-        return res.status(401).json({
-            message:"unauthorized"
-        })
-    }
-
-    let decoded;
-  try{
-       decoded=jwt.verify(token,process.env.JWT_SECRET);
-  }
-  catch(err){
-   return res.status(401).json({
-        message:"unauthorized"
-    })
-  }
-
-    console.log(decoded);
-
-
+async function createpostController(req,res){  
     //this code written for jo image agigi usko server se imagekit me upload karne ke liye
     const file=await imagekit.files.upload({
         file:await toFile(Buffer.from(req.file.buffer),'file'),
@@ -42,7 +20,7 @@ async function createpostController(req,res){
     const post=await postModel.create({
         caption:req.body.caption,
         imgUrl:file.url,
-        user:decoded.id
+        user:req.user.id
     })
 
     res.status(201).json({
@@ -56,17 +34,9 @@ async function createpostController(req,res){
 
 
 async function getPostController(req,res){
-    const token=req.cookies.token;
-    let decoded;
-    try{
-        decoded=jwt.verify(token,process.env.JWT_SECRET);
-    }catch(err){
-        return res.status(401).json({
-            message:"unauthorized"
-        })
-    }
+  
 
-    const userId=decoded.id;
+    const userId=req.user.id;
 
     const posts=await postModel.find({user:userId});
 
@@ -77,17 +47,8 @@ async function getPostController(req,res){
 }
 
 async function getPostDetailsController(req,res){
-    const token=req.cookies.token;
-    let decoded;
-    try{
-        decoded=jwt.verify(token,process.env.JWT_SECRET);
-    }catch(err){
-        return res.status(401).json({
-            message:"unauthorized"
-        })
-    }
-
-    const userId=decoded.id;
+    
+    const userId=req.user.id;
     const postId=req.params.id;
 
     const post=await postModel.findOne({_id:postId, user:userId}); //this will check if the post with the given id belongs to the user or not ans hold the post deatails in the post variable
