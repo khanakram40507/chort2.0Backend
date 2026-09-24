@@ -6,7 +6,9 @@ const bcrypt = require("bcryptjs"); //here we install npm i bcrypt
 //* Register controller
 
 async function registerController(req,res){
-    const {email,username,password,bio,profileImage}=req.body;
+
+    try{
+           const {email,username,password,bio,profileImage}=req.body;
 
     const isUserExist=await userModel.findOne({
         $or:[
@@ -31,7 +33,11 @@ async function registerController(req,res){
     })
 
     const token=jwt.sign(
-        {id:user._id},
+        {
+        id: user._id,
+        username: user.username
+    },
+        
         process.env.JWT_SECRET,
         {expiresIn:"1d"}
     )
@@ -47,6 +53,16 @@ async function registerController(req,res){
             profileImage:user.profileImage
         }
     })
+
+    }
+    catch (error) {
+        console.error(error);
+
+        return res.status(500).json({
+            message: "Something went wrong"
+        });
+    }
+ 
 
 }
 
@@ -80,7 +96,9 @@ async function registerController(req,res){
     }
 
     const token=jwt.sign(
-        {id:user._id},
+        {id:user._id,
+          username:user.username
+        },
         process.env.JWT_SECRET,
         {expiresIn:"1d"}
     )
@@ -101,7 +119,29 @@ async function registerController(req,res){
 
 }
 
+async function getAllUsers(req, res) {
+
+    try {
+
+        const users = await userModel.find();
+
+        res.status(200).json({
+            message: "All users fetched successfully",
+            count: users.length,
+            users
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+            message: "Failed to fetch users"
+        });
+    }
+}
 module.exports={
     registerController,
-    loginController
+    loginController,
+    getAllUsers
 }

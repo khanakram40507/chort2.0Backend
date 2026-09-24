@@ -23,4 +23,10 @@ postRouter.get("/posts", identifyUser, postController.getPostController)
 
 postRouter.get("/details/:id", identifyUser, postController.getPostDetailsController)
 
+/*
+* @routes //^POST/api/posts/like/:postId
+* like a post with the id provided by req.params
+*/
+postRouter.post("/like/:id",identifyUser,postController.likePostController)
+
 module.exports=postRouter;

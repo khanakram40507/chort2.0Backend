@@ -1,12 +1,17 @@
 const postModel=require("../models/post.model");
+const likeModel=require("../models/like.model")
+const jwt=require("jsonwebtoken");
 const ImageKite=require("@imagekit/nodejs");
 const { toFile }=require("@imagekit/nodejs");
-const jwt=require("jsonwebtoken");
+
+
 
 const imagekit=new ImageKite({
     privateKey:process.env.IMAGEKIT_PRIVATE_KEY,
 })
 
+
+//^controller for create a post
 async function createpostController(req,res){  
     //this code written for jo image agigi usko server se imagekit me upload karne ke liye
     const file=await imagekit.files.upload({
@@ -32,7 +37,7 @@ async function createpostController(req,res){
     
 }
 
-
+//^controller for see the all the posts
 async function getPostController(req,res){
   
 
@@ -46,6 +51,8 @@ async function getPostController(req,res){
     })
 }
 
+
+//^controller to see a particuler postdetails
 async function getPostDetailsController(req,res){
     
     const userId=req.user.id;
@@ -71,8 +78,34 @@ async function getPostDetailsController(req,res){
     })
 }
 
+
+//^controller to like a post
+async function likePostController(req,res){
+    const username=req.user.username
+    const postId=req.params.id;
+
+    const post=await postModel.findById(postId)
+    if(!post){
+        return res.status(404).json({
+            message:"page not found",            
+        })
+    }
+    const like=likeModel.create({
+        post:postId,
+        username
+    })
+
+    res.status(201).json({
+        message:"you like this post",
+        like
+    })
+
+
+}
+
 module.exports={
     createpostController,
     getPostController,
-    getPostDetailsController
+    getPostDetailsController,
+    likePostController
 }

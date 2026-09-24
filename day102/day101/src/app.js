@@ -1,26 +1,15 @@
 const express=require("express")
 const cookieParser=require("cookie-parser");
+const cors=require("cors")
 
 const app=express();
 
-
-  //* "If the client sends data in JSON format, convert it into a JavaScript object  so I can use it."
 app.use(express.json())
-
-/*
-
-*  Read the cookies coming from the browser and make them available to me
-*res.cookie("token", token);
-
-Browser sends cookie
-       ↓
-cookieParser()
-       ↓
-req.cookies
-       ↓
-req.cookies.token
- */
-app.use(cookieParser());  
+app.use(cookieParser());
+app.use(cors({
+    credentials:true,
+    origin:"http://localhost:5173"
+}));
 
 // require routes
 const authRouter = require("./routes/auth.routes");

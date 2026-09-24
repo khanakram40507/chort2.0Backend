@@ -3,8 +3,6 @@ const userModel = require("../models/user.model");
 const crypto =require("crypto");
 const  authRouter=express.Router();  //^Create a Router object and store its reference in the variable authRouter.
 const jwt=require('jsonwebtoken')
-
-
 const authController=require("../controllers/auth.controller")
 
 
