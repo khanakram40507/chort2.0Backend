@@ -2,6 +2,7 @@ const userModel = require("../models/user.model");
 const crypto =require("crypto");
 const jwt=require('jsonwebtoken'); 
 const bcrypt = require("bcryptjs"); //here we install npm i bcrypt
+const { profile } = require("console");
 
 //* Register controller
 
@@ -119,6 +120,21 @@ async function registerController(req,res){
 
 }
 
+async function getMeController(req,res) {
+    const userId=req.user.id;
+    const user= await userModel.findById(userId)
+
+    res.status(200).json({
+        user:{
+            username:user.username,
+            email:user.email,
+            bio:user.bio,
+            profileImage:user.profileImage
+        }
+    })
+
+}
+
 async function getAllUsers(req, res) {
 
     try {
@@ -140,8 +156,11 @@ async function getAllUsers(req, res) {
         });
     }
 }
+
+
 module.exports={
     registerController,
     loginController,
-    getAllUsers
+    getAllUsers,
+    getMeController
 }
