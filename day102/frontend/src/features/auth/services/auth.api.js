@@ -47,3 +47,15 @@ export async function getMe(){
         throw err
     }
 }
+
+
+// post method  for create post
+export  async function createPost(ImageFile, caption){
+    const formData=new FormData();
+    formData.append("image",ImageFile)
+    formData.append("caption",caption)
+
+    const response=await api.post("/create-post",formData)
+
+    return response.data;  // here it will return the created post object.
+}

@@ -28,5 +28,14 @@ postRouter.get("/details/:id", identifyUser, postController.getPostDetailsContro
 * like a post with the id provided by req.params
 */
 postRouter.post("/like/:id",identifyUser,postController.likePostController)
+postRouter.post("/unlike/:postId", identifyUser, postController.unLikePostController)
+
+
+/*
+ *@route GET/api/posts/feed
+ ^     @description  get all the post created in db
+     @ acccess private
+*/
+postRouter.get("/feed",identifyUser,postController.getFeedController)
 
 module.exports=postRouter;

@@ -1,111 +1,167 @@
-const postModel=require("../models/post.model");
-const likeModel=require("../models/like.model")
-const jwt=require("jsonwebtoken");
-const ImageKite=require("@imagekit/nodejs");
-const { toFile }=require("@imagekit/nodejs");
+const postModel = require("../models/post.model");
+const likeModel = require("../models/like.model")
+const jwt = require("jsonwebtoken");
+const ImageKite = require("@imagekit/nodejs");
+const { toFile } = require("@imagekit/nodejs");
 
 
 
-const imagekit=new ImageKite({
-    privateKey:process.env.IMAGEKIT_PRIVATE_KEY,
+const imagekit = new ImageKite({
+    privateKey: process.env.IMAGEKIT_PRIVATE_KEY,
 })
 
 
 //^controller for create a post
-async function createpostController(req,res){  
+async function createpostController(req, res) {
     //this code written for jo image agigi usko server se imagekit me upload karne ke liye
-    const file=await imagekit.files.upload({
-        file:await toFile(Buffer.from(req.file.buffer),'file'),
+    const file = await imagekit.files.upload({
+        file: await toFile(Buffer.from(req.file.buffer), 'file'),
         fileName: "Test",
-        folder:"cohort-2-insta-clone-posts"
-    })  
+        folder: "cohort-2-insta-clone-posts"
+    })
 
 
 
-    const post=await postModel.create({
-        caption:req.body.caption,
-        imgUrl:file.url,
-        user:req.user.id
+    const post = await postModel.create({
+        caption: req.body.caption,
+        imgUrl: file.url,
+        user: req.user.id
     })
 
     res.status(201).json({
-        message:"post created successfully",
+        message: "post created successfully",
         post
     })
 
 
-    
+
 }
 
-//^controller for see the all the posts
-async function getPostController(req,res){
-  
+//^controller for see the all the posts of a user
+async function getPostController(req, res) {
 
-    const userId=req.user.id;
 
-    const posts=await postModel.find({user:userId});
+    const userId = req.user.id;
+
+    const posts = await postModel.find({ user: userId });
 
     res.status(200).json({
-        message:"posts fetched successfully",
+        message: "posts fetched successfully",
         posts
     })
 }
 
 
 //^controller to see a particuler postdetails
-async function getPostDetailsController(req,res){
-    
-    const userId=req.user.id;
-    const postId=req.params.id;
+async function getPostDetailsController(req, res) {
 
-    const post=await postModel.findOne({_id:postId, user:userId}); //this will check if the post with the given id belongs to the user or not ans hold the post deatails in the post variable
+    const userId = req.user.id;
+    const postId = req.params.id;
 
-    if(!post){
+    const post = await postModel.findOne({ _id: postId, user: userId }); //this will check if the post with the given id belongs to the user or not ans hold the post deatails in the post variable
+
+    if (!post) {
         return res.status(404).json({
-            message:"post not found"
+            message: "post not found"
         })
     }
-    const isAuthorized=post.user.toString()===userId;
-    if(!isAuthorized){
+    const isAuthorized = post.user.toString() === userId;
+    if (!isAuthorized) {
         return res.status(403).json({
-            message:"you are not authorized to view this post"
+            message: "you are not authorized to view this post"
         })
     }
 
     res.status(200).json({
-        message:"post details fetched successfully",
+        message: "post details fetched successfully",
         post
     })
 }
 
 
 //^controller to like a post
-async function likePostController(req,res){
-    const username=req.user.username
-    const postId=req.params.id;
 
-    const post=await postModel.findById(postId)
-    if(!post){
+
+async function likePostController(req, res) {
+    const username = req.user.username;
+
+    // Get the ID using the correct parameter name
+   const postId = req.params.id.trim();
+
+    const post = await postModel.findById(postId);
+
+    if (!post) {
         return res.status(404).json({
-            message:"page not found",            
-        })
+            message: "Post not found."
+        });
     }
-    const like=likeModel.create({
-        post:postId,
-        username
-    })
 
-    res.status(201).json({
-        message:"you like this post",
+    const like = await likeModel.create({
+        post: postId,
+        user: username
+    });
+
+    return res.status(200).json({
+        message: "Post liked successfully.",
         like
-    })
-
-
+    });
 }
 
-module.exports={
+async function unLikePostController(req, res) {
+    const postId = req.params.postId
+    const username = req.user.username
+
+    const isLiked = await likeModel.findOne({
+        post: postId,
+        user: username
+    })
+
+    if (!isLiked) {
+        return res.status(400).json({
+            message: "Post didn't like"
+        })
+    }
+
+    await likeModel.findOneAndDelete({ _id: isLiked._id })
+
+    return res.status(200).json({
+        message: "post un liked successfully."
+    })
+}
+
+
+
+
+//^controller to get all the posts in the feed
+async function getFeedController(req, res) {
+
+    const user = req.user
+
+    const posts = await Promise.all((await postModel.find({}).populate("user").lean())
+        .map(async (post) => {
+            const isLiked = await likeModel.findOne({
+                user: user.username,
+                post: post._id
+            })
+
+            post.isLiked = Boolean(isLiked)
+
+            return post
+        }))
+
+
+
+    res.status(200).json({
+        message: "posts fetched successfully.",
+        posts
+    })
+}
+
+module.exports = {
     createpostController,
     getPostController,
     getPostDetailsController,
-    likePostController
+    likePostController,
+    unLikePostController,
+    getFeedController
 }

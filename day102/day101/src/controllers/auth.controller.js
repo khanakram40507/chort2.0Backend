@@ -9,14 +9,14 @@ const { profile } = require("console");
 async function registerController(req,res){
 
     try{
-           const {email,username,password,bio,profileImage}=req.body;
+         const {email,username,password,bio,profileImage}=req.body;
 
     const isUserExist=await userModel.findOne({
         $or:[
             {username},
             {email}
         ]
-    })
+    }).select("+password") //this will select the password field from the user document even if it is set to select:false in the schema 
     if(isUserExist){
         return res.status(400).json({
             message:"user already exist"
@@ -79,7 +79,7 @@ async function registerController(req,res){
                 email
             }
         ]
-    })
+    }).select("+password") //this will select the password field from the user document even if it is set to select:false in the schema
 
     if(!user){
         return res.status(404).json({
